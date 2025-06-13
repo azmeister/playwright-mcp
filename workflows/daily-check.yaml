@@ -33,3 +33,9 @@ jobs:
         with:
           urls: urls.csv
           budgetPath: budgets/perf-budget.json
+
+on:
+  workflow_dispatch:   # ← lets you press a button
+  schedule:
+    - cron: '0 5 * * *'
+
