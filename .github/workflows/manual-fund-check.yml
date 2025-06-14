@@ -1,0 +1,56 @@
+name: Manual Fund Page Check   # appears in the Actions sidebar
+
+# ─────────────────────────────────────────────────────────────
+# Trigger: manual only
+# ─────────────────────────────────────────────────────────────
+on:
+  workflow_dispatch:           # adds the “Run workflow” button
+    inputs:
+      url_file:
+        description: "CSV file path with URLs (default: config/urls.csv)"
+        required: false
+        default: "config/urls.csv"
+      run_lighthouse:
+        description: "Run Lighthouse performance job too?"
+        required: false
+        default: "true"
+        type: choice
+        options: ["true", "false"]
+
+# ─────────────────────────────────────────────────────────────
+# 1st job – main AI/MCP checks
+# ─────────────────────────────────────────────────────────────
+jobs:
+  run-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start MCP server
+        run: docker compose up -d            # uses repo’s Dockerfile
+
+      - name: Install deps & run checks
+        run: |
+          npm ci
+          npm run check -- \
+            --urls ${{ inputs.url_file }}
+
+      - name: Push results to BigQuery
+        env:
+          BQ_KEY_JSON: ${{ secrets.GCP_KEY }}
+        run: python scripts/insert_results.py
+
+# ─────────────────────────────────────────────────────────────
+# 2nd job – Lighthouse (optional)
+# ─────────────────────────────────────────────────────────────
+  lighthouse:
+    needs: run-monitor
+    if: ${{ inputs.run_lighthouse == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: ${{ inputs.url_file }}
+          budgetPath: budgets/perf-budget.json
