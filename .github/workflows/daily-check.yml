@@ -1,0 +1,35 @@
+name: Daily Fund Page Check
+on:
+  schedule:
+    - cron: '0 8 * * *'       # 05:00 UTC every day
+
+jobs:
+
+  run-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start MCP server
+        run: docker compose up -d
+
+      - name: Run AI checks
+        run: |
+          npm ci
+          npm run check        # <- scrapes pages, audits a11y/compliance/etc.
+
+      - name: Push results to BigQuery
+        env:
+          BQ_KEY_JSON: ${{ secrets.GCP_KEY }}
+        run: python scripts/insert_results.py
+
+  lighthouse:
+    needs: run-monitor          # waits for run-monitor to complete
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: urls.csv
+          budgetPath: budgets/perf-budget.json
