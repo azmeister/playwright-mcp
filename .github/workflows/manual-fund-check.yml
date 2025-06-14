@@ -32,7 +32,7 @@ jobs:
       - name: Install deps & run checks
         run: |
           npm ci
-          npm run check -- \
+          npm run test
             --urls ${{ inputs.url_file }}
 
       - name: Push results to BigQuery
