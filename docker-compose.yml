@@ -1,0 +1,6 @@
+version: '3'
+services:
+  mcp:
+    build: .          # Uses the Dockerfile already in the repo
+    ports:
+      - "5000:5000"   # or any port your scripts expect
