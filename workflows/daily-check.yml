@@ -16,11 +16,12 @@ jobs:
       - name: Run AI checks
         run: |
           npm ci
-          npm run check        # <- scrapes pages, audits a11y/compliance/etc.
+          npm run fund-check
 
       - name: Push results to BigQuery
         env:
           BQ_KEY_JSON: ${{ secrets.GCP_KEY }}
+          BQ_TABLE: ${{ secrets.BQ_TABLE || 'fund_monitor.issues' }}
         run: python scripts/insert_results.py
 
   lighthouse:

@@ -32,12 +32,12 @@ jobs:
       - name: Install deps & run checks
         run: |
           npm ci
-          npm run test
-            --urls ${{ inputs.url_file }}
+          npm run fund-check -- --urls ${{ inputs.url_file }}
 
       - name: Push results to BigQuery
         env:
           BQ_KEY_JSON: ${{ secrets.GCP_KEY }}
+          BQ_TABLE: ${{ secrets.BQ_TABLE || 'fund_monitor.issues' }}
         run: python scripts/insert_results.py
 
 # ─────────────────────────────────────────────────────────────
