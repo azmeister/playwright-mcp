@@ -27,7 +27,8 @@
     "run-server": "node lib/browserServer.js",
     "check": "npm run test",
     "clean": "rm -rf lib",
-    "npm-publish": "npm run clean && npm run build && npm run test && npm publish"
+    "npm-publish": "npm run clean && npm run build && npm run test && npm publish",
+    "fund-check": "node scripts/check_funds.mjs"
   },
   "exports": {
     "./package.json": "./package.json",
@@ -42,7 +43,8 @@
     "debug": "^4.4.1",
     "mime": "^4.0.7",
     "playwright": "1.53.0",
-    "zod-to-json-schema": "^3.24.4"
+    "zod-to-json-schema": "^3.24.4",
+    "csv-parse": "^5.5.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
