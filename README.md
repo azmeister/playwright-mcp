@@ -348,6 +348,8 @@ And then in MCP client config, set the `url` to the SSE endpoint:
 <summary><b>Docker</b></summary>
 
 **NOTE:** The Docker implementation only supports headless chromium at the moment.
+Browser binaries are copied from the official Playwright image during the build,
+so the Docker build does not require network access to `cdn.playwright.dev`.
 
 ```js
 {
@@ -783,3 +785,13 @@ X Y coordinate space, based on the provided screenshot.
 
 
 <!--- End of tools generated section -->
+
+### Compliance auditing
+
+Compliance checks are driven by the JSON file at `compliance/rules.json`.
+Each entry contains a page path served by the test server and text that must be
+present on that page. `npm test` runs `tests/compliance.spec.ts`, which loads
+this file and verifies each rule.
+
+To add or modify compliance rules, edit `compliance/rules.json` and commit the
+change. The next test run will automatically pick up the updated rules.
