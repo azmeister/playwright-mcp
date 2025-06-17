@@ -1,6 +1,14 @@
 ARG PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 # ------------------------------
+# Pre-installed browsers
+# ------------------------------
+# This stage uses the official Playwright image that already contains
+# downloaded browser binaries. They will be copied into the final image
+# to avoid network access during build.
+FROM mcr.microsoft.com/playwright:v1.53.0-jammy AS playwright-browsers
+
+# ------------------------------
 # Base
 # ------------------------------
 # Base stage: Contains only the minimal dependencies required for runtime
@@ -45,7 +53,9 @@ RUN npm run build
 # - Cache is reused when only source code changes
 FROM base AS browser
 
-RUN npx -y playwright-core install --no-shell chromium
+# Copy pre-installed browsers from the Playwright image instead of
+# downloading them during the build. This avoids hitting the Playwright CDN.
+COPY --from=playwright-browsers ${PLAYWRIGHT_BROWSERS_PATH} ${PLAYWRIGHT_BROWSERS_PATH}
 
 # ------------------------------
 # Runtime
